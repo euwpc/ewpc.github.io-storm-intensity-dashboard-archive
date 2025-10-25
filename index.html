@@ -15,7 +15,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navigation bar */
 nav {
   background: #0a1917;
   border-bottom: 2px solid #00ff66;
@@ -53,7 +52,6 @@ nav a:hover {
   color: #00ff66;
 }
 
-/* Main structure */
 header {
   text-align: center;
   padding: 20px 0 0;
@@ -68,9 +66,9 @@ select {
   padding: 6px 12px;
   border-radius: 6px;
   outline: none;
+  margin: 0 10px;
 }
 
-/* Note */
 .note {
   text-align: center;
   color: #9cc9b5;
@@ -157,9 +155,7 @@ h2 { margin: 10px 0 5px 0; font-size: 1.8rem; letter-spacing: 0.5px; }
   height: 220px;
 }
 
-.gauge svg {
-  transform: rotate(-90deg);
-}
+.gauge svg { transform: rotate(-90deg); }
 
 .gauge circle {
   fill: none;
@@ -180,18 +176,8 @@ h2 { margin: 10px 0 5px 0; font-size: 1.8rem; letter-spacing: 0.5px; }
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 2.3rem;
   font-weight: 700;
-}
-
-.gauge-label {
-  position: absolute;
-  top: -30px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  color: #00ff66;
-  font-size: 1rem;
 }
 
 .gauge-subtext {
@@ -203,36 +189,48 @@ h2 { margin: 10px 0 5px 0; font-size: 1.8rem; letter-spacing: 0.5px; }
   color: #b0b0b0;
   font-size: 0.9rem;
 }
+
+.gauge-label {
+  position: absolute;
+  top: -30px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: #00ff66;
+  font-size: 1rem;
+}
 </style>
 </head>
-
 <body>
-<!-- Navigation -->
 <nav>
   <div class="logo">Storm Archive</div>
-  <ul id="navMenu">
+  <ul>
     <li><a href="https://euwpc.github.io/ewpc.github.io-home/">Home</a></li>
     <li><a href="https://euwpc.github.io/ewpc.github.io-outlooks/">Outlooks</a></li>
     <li><a href="https://euwpc.github.io/ewpc.github.io-glossary/">Glossary</a></li>
     <li><a href="https://euwpc.github.io/ewpc.github.io/">Archive</a></li>
     <li><a href="https://euwpc.github.io/ewpc.github.io-help/">Help</a></li>
     <li><a href="https://euwpc.github.io/ewpc.github.io-faq/">FAQ</a></li>
-    <li><a href="https://euwpc.github.io/ewpc.github.io-storm-intensity-dashboard/index.html">Storm Dashboard</a></li>
+    <li><a href="https://euwpc.github.io/ewpc.github.io-storm-intensity-dashboard/">Storm Dashboard</a></li>
   </ul>
 </nav>
 
 <header>
-  <h1>Archived Storm Data</h1>
+  <h1>Storm Archive</h1>
+  <select id="yearSelect">
+    <option value="2025">2025</option>
+  </select>
+  <select id="monthSelect">
+    <option value="October">October</option>
+  </select>
   <select id="stormSelect">
-    <option value="Storm Alpha">Storm Alpha (Jan 2024)</option>
-    <option value="Storm Bravo">Storm Bravo (Mar 2024)</option>
-    <option value="Storm Charlie">Storm Charlie (Sep 2025)</option>
+    <option value="Windstorm Benjamin">Windstorm Benjamin</option>
+    <option value="Frontal Depression #14">Frontal Depression #14</option>
+    <option value="Frontal Depression #17">Frontal Depression #17</option>
   </select>
 </header>
 
-<div class="note">
-  <strong>NOTE:</strong> This is a historical storm archive. Data reflects the final analyzed track and intensity of past systems.
-</div>
+<div class="note"><strong>NOTE:</strong> Select a storm and use the slider to view its progression over time.</div>
 
 <div class="timeline-container">
   <input type="range" id="timeSlider" min="0" max="6" value="0">
@@ -244,18 +242,19 @@ h2 { margin: 10px 0 5px 0; font-size: 1.8rem; letter-spacing: 0.5px; }
 
 <div class="info-section">
   <div class="info-icon">ℹ️</div>
-  <h2>Archived Storm Information</h2>
+  <h2>Current Information</h2>
   <div class="divider"></div>
   <ul class="info-list" id="stormInfo">
     <li><span class="highlight">📍 Location:</span> --</li>
-    <li>💨 Max Winds: --</li>
-    <li>🌡 Min Pressure: --</li>
+    <li>🌀 Radius Of Maximum Winds: --</li>
+    <li>🌐 Outermost Closed Isobar: --</li>
+    <li>⏱ Environmental Pressure: --</li>
   </ul>
 </div>
 
 <div class="gauges">
   <div class="gauge" id="windGauge">
-    <div class="gauge-label">💨 Winds</div>
+    <div class="gauge-label">💨 Winds (km/h)</div>
     <svg width="220" height="220">
       <circle class="gauge-bg" cx="110" cy="110" r="90"></circle>
       <circle class="gauge-progress" cx="110" cy="110" r="90"></circle>
@@ -265,7 +264,7 @@ h2 { margin: 10px 0 5px 0; font-size: 1.8rem; letter-spacing: 0.5px; }
   </div>
 
   <div class="gauge" id="pressureGauge">
-    <div class="gauge-label">🌡 Pressure</div>
+    <div class="gauge-label">🌡 Pressure (mb)</div>
     <svg width="220" height="220">
       <circle class="gauge-bg" cx="110" cy="110" r="90"></circle>
       <circle class="gauge-progress" cx="110" cy="110" r="90"></circle>
@@ -277,35 +276,24 @@ h2 { margin: 10px 0 5px 0; font-size: 1.8rem; letter-spacing: 0.5px; }
 
 <script>
 const storms = {
-  "Storm Alpha": [
-    { time: "01 Jan 2024 00:00 UTC", wind: 60, pressure: 1005, lat: "45.2°N", lon: "5.1°E" },
-    { time: "01 Jan 2024 06:00 UTC", wind: 80, pressure: 995, lat: "46.0°N", lon: "6.0°E" },
-    { time: "01 Jan 2024 12:00 UTC", wind: 110, pressure: 970, lat: "47.3°N", lon: "7.2°E" }
+  "Windstorm Benjamin": [
+    { time: "23 Oct 2025 23:00 UTC", lat: "54.3°N", lon: "6.2°E", wind: 80, pressure: 975, rmax: "0NM", outer: "0NM", env: "975mb" },
+    { time: "24 Oct 2025 00:00 UTC", lat: "54.3°N", lon: "6.2°E", wind: 95, pressure: 975, rmax: "0NM", outer: "0NM", env: "975mb" },
+    { time: "24 Oct 2025 12:00 UTC", lat: "56.5°N", lon: "7.2°E", wind: 80, pressure: 980, rmax: "0NM", outer: "0NM", env: "980mb" },
+    { time: "24 Oct 2025 18:00 UTC", lat: "57.2°N", lon: "5.6°E", wind: 95, pressure: 980, rmax: "0NM", outer: "0NM", env: "980mb" }
   ],
-  "Storm Bravo": [
-    { time: "15 Mar 2024 06:00 UTC", wind: 55, pressure: 1002, lat: "50.3°N", lon: "2.2°E" },
-    { time: "15 Mar 2024 12:00 UTC", wind: 90, pressure: 980, lat: "51.1°N", lon: "3.5°E" },
-    { time: "15 Mar 2024 18:00 UTC", wind: 130, pressure: 950, lat: "52.3°N", lon: "4.0°E" }
-  ],
-  "Storm Charlie": [
-    { time: "10 Sep 2025 00:00 UTC", wind: 70, pressure: 1008, lat: "40.1°N", lon: "10.5°W" },
-    { time: "10 Sep 2025 12:00 UTC", wind: 95, pressure: 980, lat: "41.2°N", lon: "9.3°W" },
-    { time: "11 Sep 2025 00:00 UTC", wind: 140, pressure: 945, lat: "42.0°N", lon: "8.1°W" }
+  "Frontal Depression #14": [
+    { time: "23 Oct 2025 23:00 UTC", lat: "56.1°N", lon: "10.1°W", wind: 75, pressure: 987, rmax: "0NM", outer: "0NM", env: "987mb" },
+    { time: "24 Oct 2025 12:00 UTC", lat: "52.5°N", lon: "7.2°W", wind: 65, pressure: 995, rmax: "0NM", outer: "0NM", env: "995mb" }
   ]
 };
 
-// Gauge thresholds
-const WIND_MIN = 40;
-const WIND_MAX = 140;
-const PRESSURE_MIN = 925;
-const PRESSURE_MAX = 1010;
-
-function windColor(speed) {
-  if (speed < 40) return "#00ffff";
-  if (speed < 60) return "#00ff66";
-  if (speed < 75) return "#ffff00";
-  if (speed < 90) return "#ff8000";
-  if (speed < 130) return "#ff0000";
+function windColor(w) {
+  if (w < 41) return "#00ffff";
+  if (w < 61) return "#00ff66";
+  if (w < 76) return "#ffff00";
+  if (w < 91) return "#ff8000";
+  if (w < 131) return "#ff0000";
   return "#b000ff";
 }
 
@@ -320,14 +308,12 @@ function pressureColor(p) {
 
 function animateGauge(id, value, min, max, color) {
   const circle = document.querySelector(`#${id} .gauge-progress`);
-  const radius = circle.r.baseVal.value;
-  const circumference = 2 * Math.PI * radius;
-
+  const r = circle.r.baseVal.value;
+  const c = 2 * Math.PI * r;
   const clamped = Math.min(Math.max(value, min), max);
   const progress = (clamped - min) / (max - min);
-  const offset = circumference - progress * circumference;
-
-  circle.style.strokeDasharray = circumference;
+  const offset = c - progress * c;
+  circle.style.strokeDasharray = c;
   circle.style.strokeDashoffset = offset;
   circle.style.stroke = color;
 }
@@ -335,25 +321,27 @@ function animateGauge(id, value, min, max, color) {
 function updateDisplay() {
   const storm = storms[stormSelect.value];
   const index = parseInt(timeSlider.value);
-  const point = storm[index];
-
-  const wColor = windColor(point.wind);
-  const pColor = pressureColor(point.pressure);
+  const data = storm[index];
+  const color = windColor(data.wind);
+  const pColor = pressureColor(data.pressure);
 
   document.getElementById("stormInfo").innerHTML = `
-    <li><span class="highlight">📍 Location:</span> ${point.lat}, ${point.lon}</li>
-    <li>💨 Max Winds: ${point.wind} km/h</li>
-    <li>🌡 Min Pressure: ${point.pressure} hPa</li>
+    <li><span class="highlight">📍 Location:</span> ${data.lat}, ${data.lon}</li>
+    <li>🌀 Radius Of Maximum Winds: ${data.rmax}</li>
+    <li>🌐 Outermost Closed Isobar: ${data.outer}</li>
+    <li>⏱ Environmental Pressure: ${data.env}</li>
   `;
 
-  document.getElementById("windValue").textContent = `${point.wind}`;
-  document.getElementById("pressureValue").textContent = `${point.pressure}`;
-
-  animateGauge("windGauge", point.wind, WIND_MIN, WIND_MAX, wColor);
-  animateGauge("pressureGauge", point.pressure, PRESSURE_MIN, PRESSURE_MAX, pColor);
+  document.getElementById("windValue").textContent = data.wind;
+  document.getElementById("pressureValue").textContent = data.pressure;
+  document.getElementById("windSub").textContent = `${(data.wind/1.852).toFixed(0)} kts / ${(data.wind/1.609).toFixed(0)} mph`;
+  document.getElementById("pressureSub").textContent = `${(data.pressure/33.8639).toFixed(2)} inHg`;
 
   timeStart.textContent = storm[0].time;
   timeEnd.textContent = storm[storm.length - 1].time;
+
+  animateGauge("windGauge", data.wind, 25, 140, color);
+  animateGauge("pressureGauge", data.pressure, 925, 1010, pColor);
 }
 
 const stormSelect = document.getElementById("stormSelect");
